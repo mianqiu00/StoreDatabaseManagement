@@ -180,40 +180,23 @@ def query_transactions(product_id=None, user=None, start_time=None, end_time=Non
 
 
 # 6. Sales Summary
-def print_summary(summary):
-    output = []
-
-    if not summary:
-        output.append("No sales data available for the specified period.")
-        return "\n".join(output)
-
-    output.append("Sales Summary:")
-    output.append("-" * 30)
-    output.append(f"{'Product Name':<25} | {'Total Sold':<10}")
-    output.append("-" * 30)
-
-    for product_name, total_sold in summary.items():
-        output.append(f"{product_name:<25} | {total_sold:<10}")
-
-    output.append("-" * 30)
-    output.append("End of Summary.")
-
-    return "\n".join(output)
-
 def sales_summary(start_time, end_time, category=None):
     transactions = read_json(TRANSACTIONS_FILE)
-    if not transactions:
+    sales = [t for t in transactions if t['operation_type'] == "sale"]
+
+    if not sales:
         return html.P("No transaction records available.")
 
     # time filter
     if start_time:
-        sales = [t for t in transactions if t['operation_type'] == "sale" and start_time <= t['timestamp']]
+        sales = [t for t in sales if start_time <= t['timestamp']]
     if end_time:
-        sales = [t for t in transactions if t['operation_type'] == "sale" and t['timestamp'] <= end_time]
+        sales = [t for t in sales if t['timestamp'] <= end_time]
 
     # category filter
     if category:
-        sales = [s for s in sales if read_json(PRODUCTS_FILE)[s['product_id']]['category'] == category]
+        products = read_json(PRODUCTS_FILE)
+        sales = [s for s in sales if products[s['product_id']]['category'] == category]
 
     summary = {}
     for sale in sales:
