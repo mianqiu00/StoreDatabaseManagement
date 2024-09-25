@@ -1,0 +1,23 @@
+{
+    "A001": {
+        "id": "A001",
+        "name": "apple",
+        "stock": 10,
+        "category": "fruit",
+        "user": "yitian"
+    },
+    "B001": {
+        "id": "B001",
+        "name": "tomato",
+        "stock": 0,
+        "category": "vegetable",
+        "user": "yitian"
+    },
+    "A002": {
+        "id": "A002",
+        "name": "banana",
+        "stock": 0,
+        "category": "fruit",
+        "user": "yitian"
+    }
+}

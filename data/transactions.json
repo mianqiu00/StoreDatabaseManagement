@@ -1,0 +1,18 @@
+[
+    {
+        "product_id": "A001",
+        "product_name": "apple",
+        "operation_type": "purchase",
+        "operator": "yitian",
+        "timestamp": "2024-09-24T20:43:07.426635",
+        "quantity": 20
+    },
+    {
+        "product_id": "A001",
+        "product_name": "apple",
+        "operation_type": "sale",
+        "operator": "yitian",
+        "timestamp": "2024-09-24T20:45:21.371356",
+        "quantity": 10
+    }
+]

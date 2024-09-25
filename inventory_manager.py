@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from dash import html
 
 DATA_DIR = 'data'
 PRODUCTS_FILE = os.path.join(DATA_DIR, 'products.json')
@@ -106,8 +107,33 @@ def delete_product(product_id, user):
 def view_products_sorted_by_stock(category):
     products = read_json(PRODUCTS_FILE)
     category_products = [p for p in products.values() if p['category'] == category]
+
     sorted_products = sorted(category_products, key=lambda x: x['stock'], reverse=True)
-    return sorted_products
+    if not sorted_products:
+        return html.P(f"No products available in the '{category}' category.")
+
+    # table header
+    table_header = html.Thead(html.Tr([
+        html.Th("Product ID"),
+        html.Th("Product Name"),
+        html.Th("Stock"),
+        html.Th("Category"),
+        html.Th("User")
+    ]))
+
+    # table body
+    table_body = html.Tbody([
+        html.Tr([
+            html.Td(product['id']),
+            html.Td(product['name']),
+            html.Td(product['stock']),
+            html.Td(product['category']),
+            html.Td(product['user'])
+        ]) for product in sorted_products
+    ])
+
+    return html.Table([table_header, table_body],
+                      style={'width': '100%', 'border': '1px solid black', 'border-collapse': 'collapse'})
 
 
 # 5. Query Transaction Records
@@ -124,7 +150,33 @@ def query_transactions(product_id=None, user=None, start_time=None, end_time=Non
     if end_time:
         filtered_transactions = [t for t in filtered_transactions if t['timestamp'] <= end_time]
 
-    return filtered_transactions
+    if not filtered_transactions:
+        return html.P("No transactions match the criteria.")
+
+    # Build the table header
+    table_header = html.Thead(html.Tr([
+        html.Th("Product ID"),
+        html.Th("Product Name"),
+        html.Th("Operation Type"),
+        html.Th("Operator"),
+        html.Th("Timestamp"),
+        html.Th("Quantity")
+    ]))
+
+    # Build the table body by iterating over filtered transactions
+    table_body = html.Tbody([
+        html.Tr([
+            html.Td(transaction['product_id']),
+            html.Td(transaction['product_name']),
+            html.Td(transaction['operation_type']),
+            html.Td(transaction['operator']),
+            html.Td(transaction['timestamp']),
+            html.Td(transaction['quantity'])
+        ]) for transaction in filtered_transactions
+    ])
+
+    return html.Table([table_header, table_body],
+                      style={'width': '100%', 'border': '1px solid black', 'border-collapse': 'collapse'})
 
 
 # 6. Sales Summary
@@ -151,9 +203,15 @@ def print_summary(summary):
 def sales_summary(start_time, end_time, category=None):
     transactions = read_json(TRANSACTIONS_FILE)
     if not transactions:
-        return "No transaction records available."
-    sales = [t for t in transactions if t['operation_type'] == "sale" and start_time <= t['timestamp'] <= end_time]
+        return html.P("No transaction records available.")
 
+    # time filter
+    if start_time:
+        sales = [t for t in transactions if t['operation_type'] == "sale" and start_time <= t['timestamp']]
+    if end_time:
+        sales = [t for t in transactions if t['operation_type'] == "sale" and t['timestamp'] <= end_time]
+
+    # category filter
     if category:
         sales = [s for s in sales if read_json(PRODUCTS_FILE)[s['product_id']]['category'] == category]
 
@@ -162,39 +220,74 @@ def sales_summary(start_time, end_time, category=None):
         product_name = sale['product_name']
         summary[product_name] = summary.get(product_name, 0) + sale['quantity']
 
-    return print_summary(summary)
+    if not summary:
+        return html.P("No sales records available for the specified period.")
+
+    # table header
+    table_header = html.Thead(html.Tr([
+        html.Th("Product Name"),
+        html.Th("Total Quantity Sold")
+    ]))
+
+    # table body
+    table_body = html.Tbody([
+        html.Tr([
+            html.Td(product_name),
+            html.Td(quantity)
+        ]) for product_name, quantity in summary.items()
+    ])
+
+    return html.Table([table_header, table_body], style={'width': '50%', 'border': '1px solid black', 'border-collapse': 'collapse'})
 
 
 # 7. Display all products
 def display_all_products():
-    products = read_json(PRODUCTS_FILE)  # 假设读取的产品信息是一个字典
+    products = read_json(PRODUCTS_FILE)
     if not products:
-        return "No product records available."
+        return html.P("No product records available.")
 
     sorted_products = {}
 
+    # categorize the product
     for product_id, product_info in products.items():
         category = product_info['category']
         if category not in sorted_products:
             sorted_products[category] = []
         sorted_products[category].append(product_info)
 
+    # sort down by stock
     for category in sorted_products:
         sorted_products[category].sort(key=lambda x: x['stock'], reverse=True)
 
-    output = []
-    output.append("All Products Information:")
-    output.append("-" * 40)
+    tables = []
 
+    # particular form for each category
     for category, items in sorted(sorted_products.items()):
-        output.append(f"Category: {category}")
-        output.append("-" * 40)
-        for item in items:
-            output.append(f"ID: {item['id']}, Name: {item['name']}, Stock: {item['stock']}, User: {item['user']}")
+        # table header
+        table_header = html.Thead(html.Tr([
+            html.Th("ID"),
+            html.Th("Name"),
+            html.Th("Stock"),
+            html.Th("User")
+        ]))
 
-        output.append("")
+        # table body
+        table_body = html.Tbody([
+            html.Tr([
+                html.Td(item['id']),
+                html.Td(item['name']),
+                html.Td(item['stock']),
+                html.Td(item['user'])
+            ]) for item in items
+        ])
 
-    return "\n".join(output)
+        tables.append(html.H3(f"Category: {category}"))
+        tables.append(html.Table(
+            [table_header, table_body],
+            style={'width': '100%', 'border': '1px solid black', 'border-collapse': 'collapse', 'margin-bottom': '20px'}
+        ))
+
+    return html.Div(tables)
 
 
 # 8. Display all transactions
@@ -202,20 +295,35 @@ def display_all_transactions():
     transactions = read_json(TRANSACTIONS_FILE)
 
     if not transactions:
-        return "No transaction records available."
+        return html.P("No transaction records available.")
 
+    # sort by timestamp
     sorted_transactions = sorted(transactions, key=lambda x: x['timestamp'], reverse=True)
 
-    output = []
-    output.append("All Transactions Information:")
-    output.append("-" * 40)
+    # table header
+    table_header = [
+        html.Thead(html.Tr([
+            html.Th("Product ID"),
+            html.Th("Product Name"),
+            html.Th("Operation Type"),
+            html.Th("Operator"),
+            html.Th("Timestamp"),
+            html.Th("Quantity")
+        ]))
+    ]
 
-    for transaction in sorted_transactions:
-        output.append(f"Product ID: {transaction['product_id']}, "
-                      f"Product Name: {transaction['product_name']}, "
-                      f"Operation Type: {transaction['operation_type']}, "
-                      f"Operator: {transaction['operator']}, "
-                      f"Timestamp: {transaction['timestamp']}, "
-                      f"Quantity: {transaction['quantity']}")
+    # table body
+    table_body = [
+        html.Tbody([
+            html.Tr([
+                html.Td(transaction['product_id']),
+                html.Td(transaction['product_name']),
+                html.Td(transaction['operation_type']),
+                html.Td(transaction['operator']),
+                html.Td(transaction['timestamp']),
+                html.Td(transaction['quantity'])
+            ]) for transaction in sorted_transactions
+        ])
+    ]
 
-    return "\n".join(output)
+    return html.Table(table_header + table_body, style={'width': '100%', 'border': '1px solid black', 'border-collapse': 'collapse'})

@@ -1,4 +1,3 @@
-import time
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
@@ -17,15 +16,15 @@ navbar = dbc.NavbarSimple(
             label="Menu",
             children=[
                 dbc.DropdownMenuItem("Product Catalog Management", id="page-1-link"),
-                dbc.DropdownMenuItem(divider=True),
                 dbc.DropdownMenuItem("Stock In/Out Management", id="page-2-link"),
                 dbc.DropdownMenuItem("Sale Analysis", id="page-3-link"),
+                dbc.DropdownMenuItem(divider=True),
                 dbc.DropdownMenuItem("Products List", id="page-4-link"),
                 dbc.DropdownMenuItem("Transactions List", id="page-5-link"),
             ]
         ),
         dbc.NavItem(dbc.NavLink("New page", href="http://127.0.0.1:8050/", target="_blank")),
-        html.Div(style={'width': '30px'})  # 空位，宽度为40px（大约两个字符宽度）
+        html.Div(style={'width': '30px'})
     ],
     brand="Mall Inventory Management System"
 )
@@ -75,6 +74,11 @@ html1 = dbc.Container([
                     id='category-dropdown',
                     options=[{'label': c, 'value': c} for c in inv.view_products_by_category().keys()],
                     placeholder="Select or input a category"
+                ),
+                dcc.Interval(
+                    id='interval-component',
+                    interval=3*1000,
+                    n_intervals=0
                 ),
             ]),
             html.Br(),
@@ -134,11 +138,11 @@ html2 = dbc.Container([
                               style={'width': '22%', 'height': '35px', 'margin-right': '2%'}),
                     dcc.Input(id='start-date-3', type='text', placeholder='YYYY-MM-DD', value=today[:10],
                               style={'width': '22%', 'height': '35px', 'margin-right': '2%'}),
-                    dcc.Input(id='start-time-3', type='text', placeholder='HH:MM:SS (Start)',
+                    dcc.Input(id='start-time-3', type='text', placeholder='HH:MM:SS (Start)', value='00:00:00',
                               style={'width': '22%', 'height': '35px', 'margin-right': '2%'}),
                     dcc.Input(id='end-date-3', type='text', placeholder='YYYY-MM-DD', value=today[:10],
                               style={'width': '22%', 'height': '35px', 'margin-right': '2%'}),
-                    dcc.Input(id='end-time-3', type='text', placeholder='HH:MM:SS (End)',
+                    dcc.Input(id='end-time-3', type='text', placeholder='HH:MM:SS (End)', value='00:00:00',
                               style={'width': '22%', 'height': '35px', 'margin-right': '2%'}),
                 ], style={'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center',
                           'margin-bottom': '15px'}),
@@ -165,11 +169,11 @@ html3 = dbc.Container([
                         placeholder="Category (Optional)", style={'width': '90%', 'margin-right': '2%'}),
                     dcc.Input(id='start-date-4', type='text', placeholder='YYYY-MM-DD', value=today[:10],
                               style={'width': '50%', 'height': '35px', 'margin-right': '2%'}),
-                    dcc.Input(id='start-time-4', type='text', placeholder='HH:MM:SS (Start)',
+                    dcc.Input(id='start-time-4', type='text', placeholder='HH:MM:SS (Start)', value='00:00:00',
                               style={'width': '50%', 'height': '35px', 'margin-right': '2%'}),
                     dcc.Input(id='end-date-4', type='text', placeholder='YYYY-MM-DD', value=today[:10],
                               style={'width': '50%', 'height': '35px', 'margin-right': '2%'}),
-                    dcc.Input(id='end-time-4', type='text', placeholder='HH:MM:SS (End)',
+                    dcc.Input(id='end-time-4', type='text', placeholder='HH:MM:SS (End)', value='00:00:00',
                               style={'width': '50%', 'height': '35px', 'margin-right': '2%'}),
                 ], style={'display': 'flex', 'justify-content': 'space-between', 'align-items': 'center',
                           'margin-bottom': '15px'}),
@@ -189,7 +193,7 @@ html4 = dbc.Container([
         dbc.CardBody([
             # Section: Product Catalog Lookup
             html.Div([
-                html.Button('Refresh', id='refresh-1', style={'margin-bottom': '15px'}),
+                dcc.Interval(id='refresh-1', interval=3*1000, n_intervals=0),
                 # Update status
                 html.Div(id='all-product-list')
             ]),
@@ -203,7 +207,7 @@ html5 = dbc.Container([
         dbc.CardBody([
             # Section: Product Catalog Lookup
             html.Div([
-                html.Button('Refresh', id='refresh-2', style={'margin-bottom': '15px'}),
+                dcc.Interval(id='refresh-2', interval=3*1000, n_intervals=0),
                 # Update status
                 html.Div(id='all-transaction-list')
             ]),
@@ -271,13 +275,22 @@ def display_page(page_1_clicks, page_2_clicks, page_3_clicks, page_4_clicks, pag
 
 
 @app.callback(
+    Output('category-dropdown', 'options'),
+    Input('interval-component', 'n_intervals')  # 每次间隔触发更新
+)
+def update_dropdown_options(n_intervals):
+    # 获取最新的产品类别并返回给 Dropdown 的 options
+    categories = inv.view_products_by_category()
+    return [{'label': c, 'value': c} for c in categories.keys()]
+
+
+@app.callback(
     Output('product-list', 'children'),
     [Input('category-dropdown', 'value')]
 )
 def display_products(category):
     if category:
-        products = inv.view_products_sorted_by_stock(category)
-        return "\n".join([f"{p['name']}: {p['stock']} in stock" for p in products])
+        return inv.view_products_sorted_by_stock(category)
     return "Select a category to view products."
 
 
@@ -380,11 +393,9 @@ def query_transaction(n_clicks, product_id, user, start_date, start_time, end_da
         if not (product_id or user or start_time or end_time):
             return "Please select at least one filter."
         if start_time and end_time:
-            if start_time > end_time:
+            if start_time >= end_time:
                 return "Start time must be before end time."
-        transactions = inv.query_transactions(product_id, user, start_time, end_time)
-        text = "\n".join([f"product_id: {t['product_id']} product_name:{t['product_name']} operation_type: {t['operation_type']} operator: {t['operator']} timestamp: {t['timestamp']} quantity: {t['quantity']}" for t in transactions])
-        return text
+        return inv.query_transactions(product_id, user, start_time, end_time)
     return ""
 
 
@@ -397,7 +408,7 @@ def query_transaction(n_clicks, product_id, user, start_date, start_time, end_da
      Input('end-date-4', 'value'),
      Input('end-time-4', 'value'),]
 )
-def query_transaction(n_clicks, category, start_date, start_time, end_date, end_time):
+def sales_summary(n_clicks, category, start_date, start_time, end_date, end_time):
     if n_clicks:
         if start_time:
             start_time = combine_date_and_time(start_date, start_time)
@@ -416,22 +427,18 @@ def query_transaction(n_clicks, category, start_date, start_time, end_date, end_
 
 @app.callback(
     Output('all-product-list', 'children'),
-    [Input('refresh-1', 'n_clicks')]
+    [Input('refresh-1', 'n_intervals')]
 )
-def display_products(n_clicks):
-    if n_clicks:
-        return inv.display_all_products()
-    return ""
+def display_products(n_intervals):
+    return inv.display_all_products()
 
 
 @app.callback(
     Output('all-transaction-list', 'children'),
-    [Input('refresh-2', 'n_clicks')]
+    [Input('refresh-2', 'n_intervals')]
 )
-def display_transactions(n_clicks):
-    if n_clicks:
-        return inv.display_all_transactions()
-    return ""
+def display_transactions(n_intervals):
+    return inv.display_all_transactions()
 
 
 if __name__ == '__main__':
