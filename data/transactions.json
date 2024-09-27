@@ -14,5 +14,93 @@
         "operator": "yitian",
         "timestamp": "2024-09-24T20:45:21.371356",
         "quantity": 10
+    },
+    {
+        "product_id": "A002",
+        "product_name": "banana",
+        "operation_type": "purchase",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T00:38:03.936325",
+        "quantity": 10
+    },
+    {
+        "product_id": "A003",
+        "product_name": "orange",
+        "operation_type": "purchase",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T00:38:43.119000",
+        "quantity": 20
+    },
+    {
+        "product_id": "A003",
+        "product_name": "orange",
+        "operation_type": "purchase",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T00:38:45.767342",
+        "quantity": 20
+    },
+    {
+        "product_id": "B001",
+        "product_name": "tomato",
+        "operation_type": "purchase",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T00:40:52.118801",
+        "quantity": 30
+    },
+    {
+        "product_id": "B002",
+        "product_name": "potato",
+        "operation_type": "purchase",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T00:41:40.089113",
+        "quantity": 60
+    },
+    {
+        "product_id": "A002",
+        "product_name": "banana",
+        "operation_type": "sale",
+        "operator": "yayun",
+        "timestamp": "2024-09-27T00:43:03.620178",
+        "quantity": 2
+    },
+    {
+        "product_id": "A001",
+        "product_name": "apple",
+        "operation_type": "sale",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T00:43:43.557396",
+        "quantity": 4
+    },
+    {
+        "product_id": "B001",
+        "product_name": "tomato",
+        "operation_type": "sale",
+        "operator": "yayun",
+        "timestamp": "2024-09-27T00:44:06.615854",
+        "quantity": 7
+    },
+    {
+        "product_id": "A002",
+        "product_name": "banana",
+        "operation_type": "sale",
+        "operator": "yayun",
+        "timestamp": "2024-09-27T00:44:30.456156",
+        "quantity": 3
+    },
+    {
+        "product_id": "A003",
+        "product_name": "orange",
+        "operation_type": "sale",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T00:45:10.267153",
+        "quantity": 7
+    },
+    {
+        "product_id": "A003",
+        "product_name": "orange",
+        "operation_type": "sale",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T00:45:15.352190",
+        "quantity": 7
     }
 ]

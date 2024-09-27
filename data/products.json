@@ -2,22 +2,36 @@
     "A001": {
         "id": "A001",
         "name": "apple",
-        "stock": 10,
+        "stock": 6,
         "category": "fruit",
         "user": "yitian"
     },
     "B001": {
         "id": "B001",
         "name": "tomato",
-        "stock": 0,
+        "stock": 23,
         "category": "vegetable",
         "user": "yitian"
     },
     "A002": {
         "id": "A002",
         "name": "banana",
-        "stock": 0,
+        "stock": 5,
         "category": "fruit",
+        "user": "yitian"
+    },
+    "A003": {
+        "id": "A003",
+        "name": "orange",
+        "stock": 26,
+        "category": "fruit",
+        "user": "yitian"
+    },
+    "B002": {
+        "id": "B002",
+        "name": "potato",
+        "stock": 60,
+        "category": "vegetable",
         "user": "yitian"
     }
 }
