@@ -1,6 +1,7 @@
-import json
 import os
+import json
 from datetime import datetime
+from collections import OrderedDict
 from dash import html
 
 DATA_DIR = 'data'
@@ -205,6 +206,7 @@ def sales_summary(start_time, end_time, category=None):
 
     if not summary:
         return html.P("No sales records available for the specified period.")
+    summary = OrderedDict(sorted(summary.items(), key=lambda x: x[1], reverse=True))
 
     # table header
     table_header = html.Thead(html.Tr([

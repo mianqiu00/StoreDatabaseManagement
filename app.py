@@ -421,7 +421,7 @@ def sales_summary(n_clicks, category, start_date, start_time, end_date, end_time
         if start_time and end_time:
             if start_time > end_time:
                 return "Start time must be before end time."
-        return inv.sales_summary(category, start_time, end_time)
+        return inv.sales_summary(start_time, end_time, category)
     return ""
 
 

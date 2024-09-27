@@ -2,7 +2,7 @@
     "A001": {
         "id": "A001",
         "name": "apple",
-        "stock": 6,
+        "stock": 18,
         "category": "fruit",
         "user": "yitian"
     },

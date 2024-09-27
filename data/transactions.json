@@ -102,5 +102,13 @@
         "operator": "yitian",
         "timestamp": "2024-09-27T00:45:15.352190",
         "quantity": 7
+    },
+    {
+        "product_id": "A001",
+        "product_name": "apple",
+        "operation_type": "purchase",
+        "operator": "yitian",
+        "timestamp": "2024-09-27T21:31:44.325431",
+        "quantity": 12
     }
 ]
